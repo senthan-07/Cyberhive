@@ -1,7 +1,8 @@
 import express from "express";
-import { scanNetwork } from "../Controller/Scan.js";
+import { getIp, scanNetwork } from "../Controller/Scan.js";
 
 const ScanRouter = express.Router();
 ScanRouter.post("/scan", scanNetwork);
+ScanRouter.get("/ip",getIp);
 
 export {ScanRouter};

@@ -24,9 +24,33 @@ async function seedLogs() {
 
     
     const logs = [
-      { event: "SERVER_STARTED", severity: "low" },
-      { event: "DB_CONNECTION_ERROR", severity: "high" },
-      { event: "UNAUTHORIZED_ACCESS", severity: "medium" }
+      {
+        event: "SCAN_STARTED",
+        severity: "low",
+        ipAddress: "192.168.1.10",
+        scannedPorts: [],
+        securityScore: null,
+        anomalyDetected: false,
+      },
+      {
+        event: "PORT_OPEN",
+        severity: "medium",
+        ipAddress: "192.168.1.10",
+        scannedPorts: [{ port: 22, service: "SSH", risk: "high" }],
+        securityScore: 90,
+        anomalyDetected: false,
+      },
+      {
+        event: "MALICIOUS_ACTIVITY",
+        severity: "high",
+        ipAddress: "192.168.1.50",
+        scannedPorts: [
+          { port: 445, service: "SMB", risk: "high" },
+          { port: 3389, service: "RDP", risk: "high" },
+        ],
+        securityScore: 70,
+        anomalyDetected: true,
+      },
     ];
 
     await SystemLog.insertMany(logs);
