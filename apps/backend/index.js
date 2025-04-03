@@ -7,6 +7,7 @@ import {connectDB} from "./config/db.js";
 import { Authrouter } from "./routes/auth.js";
 import { SystemRouter } from "./routes/System.js";
 import { ScanRouter } from "./routes/scan.js";
+import { ChatRouter } from "./routes/chat.js";
 
 dotenv.config();
 connectDB();
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use("/auth",Authrouter);
+app.use("/Ai",ChatRouter);
 app.use("/security", ScanRouter);
 app.use("/system", SystemRouter);
 
