@@ -8,6 +8,7 @@ import { Authrouter } from "./routes/auth.js";
 import { SystemRouter } from "./routes/System.js";
 import { ScanRouter } from "./routes/scan.js";
 import { ChatRouter } from "./routes/chat.js";
+import { IRouter } from "./routes/ids.js";
 
 dotenv.config();
 connectDB();
@@ -22,6 +23,7 @@ app.use("/auth",Authrouter);
 app.use("/Ai",ChatRouter);
 app.use("/security", ScanRouter);
 app.use("/system", SystemRouter);
+app.use("/IDS",IRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
