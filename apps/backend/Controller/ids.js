@@ -69,7 +69,7 @@ const monitorTraffic = (ip) => {
       trafficCount++;
       const now = Date.now();
       if (now - lastResetTime > 10000) { // every 10 seconds
-        if (trafficCount > 100) {
+        if (trafficCount > 50) {
           console.warn(`High traffic detected on ${ip}`);
           await SystemLog.create({
             event: "HIGH_TRAFFIC_ALERT",
