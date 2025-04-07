@@ -55,7 +55,7 @@ export default function Scanner() {
       const res = await fetch("http://localhost:5000/security/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target: ip }),
+        body: JSON.stringify({ target: "1.1.1.1" }),
       });
 
       if (!res.ok) throw new Error("Scan failed");

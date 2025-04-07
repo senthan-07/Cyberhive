@@ -51,14 +51,28 @@ function App() {
 
   const startMonitoring = async () => {
     if (!ip) return;
-    
+  
     try {
-      // In a real app, this would call your backend
-      setIsMonitoring(true);
+      const res = await fetch('http://localhost:5000/IDS/monitor/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ip }),
+      });
+  
+      const data = await res.json();
+      if (res.ok) {
+        console.log(data.message);
+        setIsMonitoring(true);
+      } else {
+        console.error(data.error || 'Failed to monitor');
+      }
     } catch (error) {
       console.error('Failed to start monitoring:', error);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
