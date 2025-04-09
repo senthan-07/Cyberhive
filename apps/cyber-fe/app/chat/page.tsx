@@ -2,12 +2,28 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function Chat() {
   const [messages, setMessages] = useState<Array<{ role: 'assistant' | 'user'; content: string }>>([]);
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [authorized, setAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const cameFromDashboard = searchParams.get('from') === 'Dashboard';
+    if (cameFromDashboard) {
+      setAuthorized(true);
+      setAuthChecked(true);
+    } else {
+      router.replace('/Dashboard');
+    }
+  }, [searchParams, router]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -77,19 +93,33 @@ export default function Chat() {
     }
   };
 
+  if (!authChecked) {
+    return <p className="text-center mt-10 text-gray-500">Checking authorization...</p>;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      {/* Header with Dashboard Button */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl font-semibold text-gray-800">Cyberhive Security Assistant</h1>
+        <button
+          onClick={() => router.push('/Dashboard')}
+          className="text-sm font-medium text-blue-600 hover:underline"
+        >
+          Dashboard
+        </button>
       </div>
 
+      {/* Chat Area */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-6">
           {messages.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
               <Bot className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <p className="text-lg font-medium">Welcome to Cyberhive Security Assistant</p>
-              <p className="mt-1">Ask me anything about pentesting, scanning, security assessments, or network reconnaissance.</p>
+              <p className="mt-1">
+                Ask me anything about pentesting, scanning, security assessments, or network reconnaissance.
+              </p>
             </div>
           )}
 
@@ -107,7 +137,9 @@ export default function Chat() {
                 <div className="text-sm font-medium text-gray-900 mb-1">
                   {message.role === 'assistant' ? 'Assistant' : 'You'}
                 </div>
-                <div className="text-gray-700 whitespace-pre-wrap">{message.content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()}</div>
+                <div className="text-gray-700 whitespace-pre-wrap">
+                  {message.content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()}
+                </div>
               </div>
             </div>
           ))}
@@ -122,6 +154,7 @@ export default function Chat() {
         </div>
       </div>
 
+      {/* Input Box */}
       <div className="border-t border-gray-200 bg-white px-4 py-4">
         <div className="max-w-3xl mx-auto flex items-end gap-4">
           <div className="flex-1 relative">

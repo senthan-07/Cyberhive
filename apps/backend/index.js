@@ -9,6 +9,7 @@ import { SystemRouter } from "./routes/System.js";
 import { ScanRouter } from "./routes/scan.js";
 import { ChatRouter } from "./routes/chat.js";
 import { IRouter } from "./routes/ids.js";
+import { VulnRouter } from "./routes/vuln.js"
 
 dotenv.config();
 connectDB();
@@ -23,6 +24,7 @@ app.use("/auth",Authrouter);
 app.use("/Ai",ChatRouter);
 app.use("/security", ScanRouter);
 app.use("/system", SystemRouter);
+app.use("/trivy",VulnRouter);
 app.use("/IDS",IRouter);
 
 const PORT = process.env.PORT || 5000;

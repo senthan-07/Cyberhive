@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Shield, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import {
   Radar,
@@ -10,6 +11,7 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
+import { useSearchParams } from "next/navigation";
 
 // --- Types ---
 type PortInfo = {
@@ -31,6 +33,25 @@ export default function Scanner() {
   const [loading, setLoading] = useState<boolean>(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [authorized, setAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const cameFromDashboard = searchParams.get("from") === "dashboard";
+
+
+  useEffect(() => {
+    if (cameFromDashboard) {
+      setAuthChecked(true);
+    } else {
+      router.replace("/Dashboard");
+    }
+  }, [cameFromDashboard, router]);
+  
+  if (!authChecked) {
+    return <p className="text-center mt-10 text-sm text-gray-500">Checking authorization...</p>;
+  }
 
   const fetchIp = async () => {
     try {
@@ -101,17 +122,23 @@ export default function Scanner() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => router.push("/Dashboard")}
+            className="bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-lg shadow-md text-white font-semibold transition-all"
+          >
+            Dashboard
+          </button>
+        </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">CyberHive Security Scanner</h1>
           <p className="text-gray-400 text-lg">
             Advanced network security analysis and vulnerability detection
           </p>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6">Scan Controls</h2>
-
+        <div className={`grid gap-8 ${scanResult ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 place-items-center"}`}>
+          <div className="bg-gray-800 rounded-xl p-6 shadow-lg w-full max-w-xl">
+            <h2 className="text-2xl font-semibold mb-6 text-center">Scan Controls</h2>
             <div className="space-y-4">
               <button
                 onClick={fetchIp}

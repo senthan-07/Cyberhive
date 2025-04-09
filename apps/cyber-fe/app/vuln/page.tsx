@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 
 // --- Types ---
@@ -30,6 +30,19 @@ export default function Scanner() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [popupData, setPopupData] = useState<{ id: string; description: string } | null>(null);
+  const [authorized, setAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+      const cameFromDashboard = sessionStorage.getItem("fromDashboard");
+    
+      if (cameFromDashboard) {
+        sessionStorage.removeItem("fromDashboard");
+        setAuthorized(true);
+      }
+    
+      setAuthChecked(true);
+    }, []);
 
   const startScan = async () => {
     if (!imageName) {

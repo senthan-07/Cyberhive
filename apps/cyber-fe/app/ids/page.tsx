@@ -1,6 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Shield, AlertCircle, Activity, Network, Scan, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Shield,
+  AlertCircle,
+  Activity,
+  Network,
+  Scan,
+  ArrowRight,
+} from "lucide-react";
 
 interface LogEntry {
   event: string;
@@ -22,6 +30,22 @@ function App() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
   const [activeTab, setActiveTab] = useState<"alerts" | "scans">("alerts");
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+
+  useEffect(() => {
+    const cameFromDashboard = sessionStorage.getItem("fromDashboard");
+  
+    if (cameFromDashboard) {
+      sessionStorage.removeItem("fromDashboard");
+      setAuthorized(true);
+    }
+  
+    setAuthChecked(true);
+  }, []);
+  
 
   useEffect(() => {
     if (!isMonitoring) return;
@@ -31,10 +55,11 @@ function App() {
         const res = await fetch(`http://localhost:5000/system/logs/${ip}`);
         if (!res.ok) throw new Error("Failed to fetch logs");
         const data = await res.json();
-        console.log(data)
         setLogs(data.logs);
 
-        const highTraffic = data.logs.filter((log: LogEntry) => log.event === "HIGH_TRAFFIC_ALERT");
+        const highTraffic = data.logs.filter(
+          (log: LogEntry) => log.event === "HIGH_TRAFFIC_ALERT"
+        );
 
         const count = highTraffic.length * 10 + 10;
         const newEntry = {
@@ -53,6 +78,27 @@ function App() {
 
     return () => clearInterval(interval);
   }, [isMonitoring, ip]);
+  
+  useEffect(() => {
+    if (authChecked && !authorized) {
+      router.replace("/Dashboard");
+    }
+  }, [authChecked, authorized, router]);
+  
+  console.log("authChecked:", authChecked, "authorized:", authorized);
+  
+  if (!authChecked) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500 text-sm">Checking authorization...</p>
+      </div>
+    );
+  }
+  
+  if (authChecked && !authorized) {
+    return null;
+  }
+  
 
   const startMonitoring = async () => {
     if (!ip) return;
@@ -65,7 +111,6 @@ function App() {
 
       const data = await res.json();
       if (res.ok) {
-        console.log(data.message);
         setIsMonitoring(true);
       } else {
         console.error(data.error || "Failed to monitor");
@@ -81,7 +126,6 @@ function App() {
   };
 
   const portScanLogs = logs.filter((log) => log.event === "PORT_SCAN_DETECTED");
-  console.log(portScanLogs)
   const alertLogs = logs.filter((log) => log.event !== "PORT_SCAN_DETECTED");
 
   return (
@@ -113,6 +157,14 @@ function App() {
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {isMonitoring ? "Monitoring..." : "Start Monitoring"}
+              </button>
+              <button
+                onClick={() => {
+                  router.push("/Dashboard");
+                }}
+                className="px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-medium shadow-sm"
+              >
+                Dashboard
               </button>
             </div>
           </div>
